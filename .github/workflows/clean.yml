@@ -1,0 +1,20 @@
+name: Clean git submodules
+on:
+  push: {}
+  workflow_dispatch:
+    inputs: {}
+
+jobs:
+  Clean-Me:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initial checkout
+        uses: actions/checkout@v3
+        with:
+          ref: 'main'
+          submodules: 'recursive'
+          clean: true
+
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
