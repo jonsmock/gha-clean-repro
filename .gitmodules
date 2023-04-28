@@ -1,0 +1,3 @@
+[submodule "modules/actions-typescript-action"]
+	path = modules/actions-typescript-action
+	url = https://github.com/actions/typescript-action
