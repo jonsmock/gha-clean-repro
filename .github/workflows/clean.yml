@@ -15,6 +15,71 @@ jobs:
           submodules: 'recursive'
           clean: true
 
-      - name: List files in the repository
+      - name: Repository should be CLEAN
         run: |
-          ls ${{ github.workspace }}
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Initial repo checkout is ${RESULT}, should be CLEAN" >> $GITHUB_STEP_SUMMARY
+
+      - name: Touch a file
+        run: touch just_some_file
+
+      - name: Repository should be DIRTY
+        run: |
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after touching file is ${RESULT}, should be DIRTY" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fresh checkout
+        uses: actions/checkout@v3
+        with:
+          ref: 'main'
+          submodules: 'recursive'
+          clean: true
+
+      - name: Repository should be CLEAN
+        run: |
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after rechecking out is ${RESULT}, should be CLEAN" >> $GITHUB_STEP_SUMMARY
+
+      - name: Force CLEAN
+        run: |
+          rm -f just_some_file
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after ensuring file removed is ${RESULT}, should be CLEAN" >> $GITHUB_STEP_SUMMARY
+
+      - name: Touch a file in submodule dir
+        run: touch modules/actions-checkout/just_some_other_file
+
+      - name: Repository should be DIRTY
+        run: |
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after touching file in submodule is ${RESULT}, should be DIRTY" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fresh checkout after dirty submodule
+        uses: actions/checkout@v3
+        with:
+          ref: 'main'
+          submodules: 'recursive'
+          clean: true
+
+      - name: Repository should be CLEAN
+        run: |
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after checking out with dirty submodule is ${RESULT}, should be CLEAN" >> $GITHUB_STEP_SUMMARY
+
+      - name: Force CLEAN
+        run: |
+          rm -f modules/actions-checkout/just_some_other_file
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after ensuring clean submodule is ${RESULT}, should be CLEAN" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fresh checkout after dirty submodule
+        uses: actions/checkout@v3
+        with:
+          ref: 'branch-with-different-modules'
+          submodules: 'recursive'
+          clean: true
+
+      - name: Repository should be CLEAN
+        run: |
+          RESULT=$(if [[ -n "$(git status --porcelain)" ]]; then echo "DIRTY"; else echo "CLEAN"; fi)
+          echo "Repo after switching to a branch with differnet submodules is ${RESULT}, should be CLEAN" >> $GITHUB_STEP_SUMMARY
