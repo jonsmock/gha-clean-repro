@@ -1,19 +1,39 @@
 name: Clean git submodules
 on:
-  push: {}
+  push:
+    inputs:
+      use-upstream:
+        description: 'Set to true to use normal actions/checkout; false to use jonsmock/checkout'
+        type: boolean
+        required: true
+        default: false
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      use-upstream:
+        description: 'Set to true to use normal actions/checkout; false to use jonsmock/checkout'
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   Clean-Me:
     runs-on: ubuntu-latest
     steps:
-      - name: Initial checkout
+      - name: Initial checkout (actions/checkout)
         uses: actions/checkout@v3
+        if: ${{ inputs.use-upstream }}
         with:
           ref: 'main'
           submodules: 'recursive'
           clean: true
+      - name: Initial checkout (jonsmock/checkout)
+        uses: jonsmock/checkout@v1
+        if: ${{ !inputs.use-upstream }}
+        with:
+          ref: 'main'
+          submodules: 'recursive'
+          clean: true
+
 
       - name: Repository should be CLEAN
         run: |
